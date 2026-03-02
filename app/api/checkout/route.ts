@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
 
     const formData = new URLSearchParams({
       mode: "payment",
-      success_url: `${baseUrl}/dashboard`,
+      success_url: `${baseUrl}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: baseUrl,
       "line_items[0][price_data][currency]": "usd",
       "line_items[0][price_data][product_data][name]": "Cuckoo Pro",
@@ -56,8 +56,11 @@ export async function POST(request: NextRequest) {
       | undefined;
 
     if (!response.ok) {
-      const message = data?.error?.message ?? "Failed to create checkout session";
-      return NextResponse.json({ error: message }, { status: response.status });
+      console.error("Stripe checkout session creation failed", data);
+      return NextResponse.json(
+        { error: "Unable to start secure checkout. Please try again." },
+        { status: response.status },
+      );
     }
 
     if (!data?.url) {
@@ -72,6 +75,16 @@ export async function POST(request: NextRequest) {
     const message =
       error instanceof Error ? error.message : "Unexpected checkout error";
 
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("Checkout route failed", error);
+
+    return NextResponse.json(
+      {
+        error:
+          message === "Missing required environment variable: STRIPE_SECRET_KEY"
+            ? "Checkout is temporarily unavailable."
+            : "Unable to start secure checkout. Please try again.",
+      },
+      { status: 500 },
+    );
   }
 }
