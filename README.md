@@ -56,6 +56,14 @@ sudo systemctl status cuckoo-app.service
 journalctl -u cuckoo-app.service -f
 ```
 
+## Secrets
+
+Do not commit live keys or paste them into tracked files.
+
+- Put real values in `.env.local`, which is ignored by git.
+- Use `.env.example` as the template for required variable names.
+- Run `npm run check:secrets` before pushing if you want a quick scan for common Stripe secret patterns in tracked files.
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
