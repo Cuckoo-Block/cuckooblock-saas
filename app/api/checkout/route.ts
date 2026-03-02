@@ -1,40 +1,20 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { getRequiredEnv } from "@/lib/access";
 
 export const runtime = "nodejs";
-
-function getRequiredEnv(name: "STRIPE_SECRET_KEY") {
-  const value = process.env[name];
-
-  if (!value) {
-    throw new Error(`Missing required environment variable: ${name}`);
-  }
-
-  return value;
-}
-
-function getBaseUrl(request: NextRequest) {
-  const envBaseUrl = process.env.NEXT_PUBLIC_BASE_URL?.trim();
-
-  if (envBaseUrl) {
-    return envBaseUrl;
-  }
-
-  return request.nextUrl.origin;
-}
 
 export async function POST(request: NextRequest) {
   try {
     const stripeSecretKey = getRequiredEnv("STRIPE_SECRET_KEY");
-    const baseUrl = getBaseUrl(request);
+    const stripePriceId = getRequiredEnv("STRIPE_PRICE_ID");
+    const origin = request.nextUrl.origin;
 
     const formData = new URLSearchParams({
-      mode: "payment",
-      success_url: `${baseUrl}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: baseUrl,
-      "line_items[0][price_data][currency]": "usd",
-      "line_items[0][price_data][product_data][name]": "Cuckoo Pro",
-      "line_items[0][price_data][unit_amount]": "2000",
+      mode: "subscription",
+      success_url: `${origin}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: origin,
+      "line_items[0][price]": stripePriceId,
       "line_items[0][quantity]": "1",
     });
 
@@ -80,7 +60,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error:
-          message === "Missing required environment variable: STRIPE_SECRET_KEY"
+          message === "Missing required environment variable: STRIPE_SECRET_KEY" ||
+          message === "Missing required environment variable: STRIPE_PRICE_ID"
             ? "Checkout is temporarily unavailable."
             : "Unable to start secure checkout. Please try again.",
       },

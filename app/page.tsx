@@ -64,7 +64,7 @@ export default function Home() {
               A clean, reliable workflow that helps teams execute faster without chaos.
             </p>
             <p className="mt-3 text-sm muted">
-              Pay once to get access to upgraded services and the Pro dashboard.
+              Start a monthly membership to get access to upgraded services and the Pro dashboard.
             </p>
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -73,10 +73,10 @@ export default function Home() {
                 disabled={isLoading}
                 className="brand-button rounded-2xl px-6 py-3 disabled:opacity-60"
               >
-                {isLoading ? "Opening checkout..." : "Upgrade to Pro - $20"}
+                {isLoading ? "Opening checkout..." : "Start Pro membership"}
               </button>
               <div className="text-sm muted">
-                One-time payment - Instant access
+                Monthly subscription - Instant access
               </div>
             </div>
 
